@@ -1,5 +1,5 @@
 command:
-  - python
+  - python3
   - ${program}
 method: grid
 metric:
@@ -7,20 +7,21 @@ metric:
   name: valid.val/best
 parameters:
   dataset:
-    distribution: categorical
+    # distribution: categorical
     values:
       - c10
-      - c100
-      - vww
-      - flowers
-      - food
-      - pets
-      - cub
+      # - c100
+      # - vww
+      # - flowers
+      # - food
+      # - pets
+      # - cub
   initialization:
-    distribution: categorical
+    # distribution: categorical
     values:
-      - SU
-      - random
+      # - SU
+      # - random
+      - full
   manual_seed:
     distribution: categorical
     values:
@@ -31,16 +32,21 @@ parameters:
     distribution: categorical
     values:
       - pre_trained_mbv2
+      - pre_trained_resnet18
+      - pre_trained_resnet50
+      # - mbv2
   neuron_selection:
-    distribution: categorical
+    # distribution: categorical
     values:
-      - SU
-      - velocity
-      - random
+      # - SU
+      # - velocity
+      # - random
+      - full
   scheme:
-    distribution: categorical
+    # distribution: categorical
     values:
-      - scheme_1
-      - scheme_3
-      - scheme_5
-program: NEq/train_classification.py
+      # - scheme_1
+      # - scheme_3
+      # - scheme_5
+      - scheme_7
+program: ./NEq/train_classification.py

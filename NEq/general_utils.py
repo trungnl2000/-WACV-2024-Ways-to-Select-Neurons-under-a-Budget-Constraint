@@ -8,7 +8,10 @@ import torch.utils.data
 from torch import nn
 
 from classification.models import get_model
-from core.utils.config import config, load_transfer_config
+from core.utils.config import config, load_transfer_config, update_config_from_wandb
+
+import wandb
+from core.utils import dist as dist_
 
 
 def set_seed(seed):
@@ -52,7 +55,48 @@ def count_net_num_conv_params(model):
         this_num_weight += conv.weight.numel()
         num_params.append(this_num_weight)
     total_num_params = sum(num_params)
-    print(total_num_params)
+    print("Total num param: ", total_num_params)
+
+def count_updateable_param(model, scheme): # Use to calculate the total updatable parameter of SU scheme
+
+    ## Same as count_net_num_conv_params
+    conv_ops = [m for m in model.modules() if isinstance(m, torch.nn.Conv2d)]
+    num_params = []
+    for conv in conv_ops:
+        this_num_weight = 0
+        if conv.bias is not None:
+            this_num_weight += conv.bias.numel()
+        this_num_weight += conv.weight.numel()
+        num_params.append(this_num_weight)
+    ## 
+    import yaml
+    # from easydict import EasyDict
+    # file_path = "./policies/test_policy.yaml"
+    # def _load_config_from_yaml(file_path):
+    #     with open(file_path, 'r') as file:
+    #         config = yaml.safe_load(file)
+        
+    #     parameters = config.get('parameters', {})
+    #     result = {}
+    #     for key, value in parameters.items():
+    #         if isinstance(value, dict) and 'values' in value:
+    #             result[key] = value['values']
+    #     return result
+    # sweep_config = _load_config_from_yaml(file_path)
+
+    with open("./NEq_configs.yaml", 'r') as file:
+        NEq_configs_yaml = yaml.safe_load(file)
+    # backward_config  = NEq_configs_yaml["net_configs"][sweep_config["scheme"][0]]["SU_scheme"]
+    backward_config  = NEq_configs_yaml["net_configs"][scheme]["SU_scheme"]
+    
+
+    weight_update_ratio = backward_config["weight_update_ratio"].split("-")
+    manual_weight_idx = backward_config["manual_weight_idx"].split("-")
+    budget = 0
+    for i in range(len(manual_weight_idx)):
+        budget += float(weight_update_ratio[i])*num_params[int(manual_weight_idx[i])]
+    
+    print("Total updatable num param: ", budget)
 
 
 def compute_update_budget(num_conv_params, ratio):
@@ -161,6 +205,11 @@ def log_masks(model, hooks, grad_mask, total_neurons, total_conv_flops):
 
 # Call this function to access to a network's number of convolutional parameters
 if __name__ == "__main__":
-    load_transfer_config("transfer.yaml")
-    model, _ = get_model()
-    count_net_num_conv_params(model)
+    # load_transfer_config("transfer.yaml")#load_config_from_file("configs/transfer.yaml")
+    net_name = "pre_trained_mbv2"
+    scheme = "scheme_1"
+    if "mcunet" in net_name:
+        model, _, _, _ = get_model(net_name)
+    else:
+        model, _ = get_model(net_name)
+    count_updateable_param(model, scheme)

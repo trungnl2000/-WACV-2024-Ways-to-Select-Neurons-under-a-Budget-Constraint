@@ -1,41 +1,42 @@
 dataset_configs:
   c10:
     dataset: cifar10
-    root: /data/aquelennec
+    root: ./data/
     new_num_classes: 10
 
   c100:
     dataset: cifar100
-    root: /data/aquelennec
+    root: ./data/
     new_num_classes: 100
   
   vww:
     dataset: vww
-    root: /data/aquelennec
+    root: ./data/
     new_num_classes: 2
   
   flowers:
-    dataset: image_folder
-    root: /data/aquelennec/flowers102
+    dataset: flowers102
+    root: ./data/flowers102
     new_num_classes: 102
   
   food:
     dataset: image_folder
-    root: /data/aquelennec/food101
+    root: ./data/food101
     new_num_classes: 101
 
   pets:
     dataset: image_folder
-    root: /data/aquelennec/pets
+    root: ./data/pets
     new_num_classes: 37
 
   cub:
     dataset: image_folder
-    root: /data/aquelennec/cub200
+    root: ./data/cub200
     new_num_classes: 200
 
 
 net_configs:
+# 7 SU schemes of mbv2
   scheme_1:
       ratio: 0.0878233231
       SU_scheme:
@@ -77,6 +78,45 @@ net_configs:
   scheme_7:
     ratio: 1
 
+# Fixed budget scheme
+  scheme_fixed_budget: # Only used for velocity and random
+    budget: 192311 #Fill in the number
+
+# MCUNet schemes for mcunet-in1
+  mcunet-in1_scheme_1:
+    budget: 12096  # use function count_updateable_param in general_utils to count or can use num_saved_params in sparse_update_tool/manually_initialize_grad_mask()
+    SU_scheme:
+      n_bias_update: 20  # how many conv to update the bias
+      weight_update_ratio: 0-0.25-0.5-0.5-0-0  # how many weights along input channels are updated (also support int number)
+      manual_weight_idx: 23-24-27-30-33-39
+  
+  mcunet-in1_scheme_2:
+    budget: 29440
+    SU_scheme:
+      n_bias_update: 21  # how many conv to update the bias
+      weight_update_ratio: 1-0-1-0-0.5-1  # how many weights along input channels are updated (also support int number)
+      manual_weight_idx: 21-23-24-26-27-30
+  
+  mcunet-in1_scheme_3:
+    budget: 52480
+    SU_scheme:
+      n_bias_update: 22  # how many conv to update the bias
+      weight_update_ratio: 1-1-1-1-0.125-0.25  # how many weights along input channels are updated (also support int number)
+      manual_weight_idx: 21-24-27-30-36-39
+
+  mcunet-in1_scheme_4:
+    budget: 75328
+    SU_scheme:
+      n_bias_update: 24  # how many conv to update the bias
+      weight_update_ratio: 0.25-1-1-1-0.5-0.5  # how many weights along input channels are updated (also support int number)
+      manual_weight_idx: 21-24-27-30-33-39
+
+  mcunet-in1_scheme_5:
+    budget: 98560
+    SU_scheme:
+      n_bias_update: 23  # how many conv to update the bias
+      weight_update_ratio: 1-1-1-1-1-0.5  # how many weights along input channels are updated (also support int number)
+      manual_weight_idx: 21-24-27-30-36-39
 
 networks:
   mbv2:
@@ -96,3 +136,15 @@ networks:
 
   pre_trained_resnet50:
     total_num_params: 23454912
+  
+  ## All MCUNet here are Pretrained version, these informations are get from general_utils.py
+  mcunet-in0:
+    total_num_params: 543176
+  mcunet-in1:
+    total_num_params: 463216
+  mcunet-in2:
+    total_num_params: 552904
+  mcunet-in3:
+    total_num_params: 561032
+  mcunet-in4:
+    total_num_params: 1390232

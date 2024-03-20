@@ -31,6 +31,26 @@ The corresponding root paths must be modified in the "NEq_configs.yaml" and "NEq
 * It is strongly advised to run the code through the wandb sweep tool as it allows for parallel and autonomous launching of many runs alongside easy monitoring of results.
 * An example of sweep configuration is provided in 'wandb_sweep_example.yaml'.
 
+## 4. Load the best model results
+
+* After training by using wandb sweep, best models are saved. To get the results of these model, use:
+
+`python3 NEq/load_best_model.py -w policies/c10_mbv2.yaml policies/c10_mbv2_baseline.yaml policies/c10_resnet18.yaml policies/c10_resnet18_baseline.yaml policies/c10_resnet50.yaml policies/c10_resnet50_baseline.yaml`
+
+=> Load all best models of pretrained mbv2, pre trained resnet18/50 with 4 schemes (1, 3, 5 and baseline - 7). The output is stored at output.xlsx (default)
+
+* Or we can specify the output file to store the results. Supported formats are: .xlsx,.xlsm,.xltx,.xltm
+
+`python3 NEq/load_best_model.py -w policies/c10_mbv2.yaml policies/c10_mbv2_baseline.yaml policies/c10_resnet18.yaml policies/c10_resnet18_baseline.yaml policies/c10_resnet50.yaml policies/c10_resnet50_baseline.yaml -o output_.xlsx`
+
+=> Load all best models of pretrained mbv2, pre trained resnet18/50 with 4 schemes (1, 3, 5 and baseline - 7). The output is stored at output_.xlsx
+
+* For scheme with fixed budget, the sweep config file must contain fixed_budget, for example "c10_resnet18_fixed_budget".yaml means this file is sweep config for c10 dataset with resnet18 and apply the scheme with fixed budget
+
+ `python3 NEq/load_best_model.py -w policies/c10_mbv2_fixed_budget.yaml policies/c10_mbv2_baseline.yaml ./policies/c10_resnet18_fixed_budget.yaml ./policies/c10_resnet18_baseline.yaml ./policies/c10_resnet50_fixed_budget.yaml ./policies/c10_resnet50_baseline.yaml -o results/fixed_budget_results.xlsx`
+
+ => Load all best models of pretrained mbv2, pre trained resnet18/50 with fixed budget scheme. The output is stored at results/fixed_budget_results.xlsx
+
 ## Citation
 
 ```
