@@ -18,38 +18,63 @@ Official repository for research presented on dynamic neuron selection at WACV 2
 
 The corresponding root paths must be modified in the "NEq_configs.yaml" and "NEq/core/dataset/dataset_entry.py" files.
 
-## 2. Launching the code with python
+These datasets can be divided into train, test, and validation sets according to their definitions using code files stored in the [train_test_split](./train_test_split) folder.
+
+## 2. Launching the code 
+### With python
 
 * Install requirements.
-* Read and modify the run settings in 'NEq/configs/transfer.yaml' file (or create a new configuration file which can be passed in as an input of the parser).
-* Launch the code with:
+* Read and modify the run settings in [NEq/configs/transfer.yaml](./NEq/configs/transfer.yaml) file (or create a new configuration file which can be passed in as an input of the parser).
+* Launch the code with: `python train_classification.py`
 
-`python train_classification.py`
-
-## 3. Launch the code as sweep with wandb
+### With WanDB
 
 * It is strongly advised to run the code through the wandb sweep tool as it allows for parallel and autonomous launching of many runs alongside easy monitoring of results.
-* An example of sweep configuration is provided in 'wandb_sweep_example.yaml'.
+* Examples of WanDB config files can be found in [policies](./policies/) folder.
+* To launch the code as a sweep with Wandb, follow these steps:
+
+- **Step 1:** Ensure that `wandb_sweep` is set to `1` in [NEq/configs/transfer.yaml](./NEq/configs/transfer.yaml).
+
+- **Step 2:** In terminal, navigate to the `-WACV-2024-Ways-to-Select-Neurons-under-a-Budget-Constraint` folder, and initiate the Wandb sweep using the command:
+
+`wandb sweep --project project_name link_to_wandb_sweep_config_file`
+
+Replace `project_name` with the name of your project on the Wandb system, and `link_to_wandb_sweep_config_file` with the path to your Wandb sweep config file. This command will create a sweep on the Wandb system with an ID of `sweep_id`.
+
+- **Step 3:** After the sweep is created, use the following command to execute each Wandb agent:
+
+`wandb agent username/project_name/sweep_id`
+
+Each agent will be responsible for running one configuration generated from the Wandb sweep config file.
+
+#### Usage Example
+- **Step 2:**: `wandb sweep --project test ./policies/test_policy.yaml` create a sweep whose id is `xxxx`
+- **Step 3:**: Use `wandb agent username/test/xxxx` to run an agent
+
+
 
 ## 4. Load the best model results
 
-* After training by using wandb sweep, best models are saved. To get the results of these model, use:
+After training using the Wandb sweep, the best models are saved. To log the results of these models into an Excel file, use the following command: 
 
-`python3 NEq/load_best_model.py -w policies/c10_mbv2.yaml policies/c10_mbv2_baseline.yaml policies/c10_resnet18.yaml policies/c10_resnet18_baseline.yaml policies/c10_resnet50.yaml policies/c10_resnet50_baseline.yaml`
+`python3 NEq/load_best_model.py -w link_to_wandb_sweep_config_files`
 
-=> Load all best models of pretrained mbv2, pre trained resnet18/50 with 4 schemes (1, 3, 5 and baseline - 7). The output is stored at output.xlsx (default)
+Replace `link_to_wandb_sweep_config_files` with the path to the Wandb sweep file(s).
 
-* Or we can specify the output file to store the results. Supported formats are: .xlsx,.xlsm,.xltx,.xltm
+For example:
 
-`python3 NEq/load_best_model.py -w policies/c10_mbv2.yaml policies/c10_mbv2_baseline.yaml policies/c10_resnet18.yaml policies/c10_resnet18_baseline.yaml policies/c10_resnet50.yaml policies/c10_resnet50_baseline.yaml -o output_.xlsx`
+`python3 NEq/load_best_model.py -w policies/c10/c10_mbv2.yaml policies/c10/c10_resnet18_baseline.yaml`
 
-=> Load all best models of pretrained mbv2, pre trained resnet18/50 with 4 schemes (1, 3, 5 and baseline - 7). The output is stored at output_.xlsx
+This command will load the best model results of pretrained MobileNetV2 with schemes 1, 3, and 5 using random initialization and three neuron update methods: SU, Velocity, and Random; and pretrained ResNet18 with scheme 7 (baseline) on the CIFAR-10 dataset. The output is stored in `output.xlsx` by default.
 
-* For scheme with fixed budget, the sweep config file must contain fixed_budget, for example "c10_resnet18_fixed_budget".yaml means this file is sweep config for c10 dataset with resnet18 and apply the scheme with fixed budget
+Alternatively, you can specify the output file to store the results by adding `-o link_to_output` at the end of the command. Supported formats include: `.xlsx`, `.xlsm`, `.xltx`, and `.xltm`.
 
- `python3 NEq/load_best_model.py -w policies/c10_mbv2_fixed_budget.yaml policies/c10_mbv2_baseline.yaml ./policies/c10_resnet18_fixed_budget.yaml ./policies/c10_resnet18_baseline.yaml ./policies/c10_resnet50_fixed_budget.yaml ./policies/c10_resnet50_baseline.yaml -o results/fixed_budget_results.xlsx`
+For example:
 
- => Load all best models of pretrained mbv2, pre trained resnet18/50 with fixed budget scheme. The output is stored at results/fixed_budget_results.xlsx
+`python3 NEq/load_best_model.py -w policies/c10/c10_mbv2.yaml policies/c10/c10_resnet18_baseline.yaml -o ABC.xlsx`
+
+Then, the results will be logged into `ABC.xlsx`.
+
 
 ## Citation
 
