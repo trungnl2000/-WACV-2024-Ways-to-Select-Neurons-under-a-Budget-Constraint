@@ -31,6 +31,7 @@ These datasets can be divided into train, test, and validation sets according to
 
 * It is strongly advised to run the code through the wandb sweep tool as it allows for parallel and autonomous launching of many runs alongside easy monitoring of results.
 * Examples of WanDB config files can be found in [policies](./policies/) folder.
+* Base on the variables defined in [NEq_configs.yaml](./NEq_configs.yaml) to define a new configuration
 * To launch the code as a sweep with Wandb, follow these steps:
 
 - **Step 1:** Ensure that `wandb_sweep` is set to `1` in [NEq/configs/transfer.yaml](./NEq/configs/transfer.yaml).

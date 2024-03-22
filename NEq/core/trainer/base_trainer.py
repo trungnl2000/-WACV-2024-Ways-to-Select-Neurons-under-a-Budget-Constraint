@@ -139,7 +139,7 @@ class BaseTrainer(object):
         val_info_dict = None
 
         # Computing the budget in terms of number of parameters
-        if "fixed_budget" in config_scheme or "mcunet" in config_scheme: # As defined in NEq_configs.yaml, all MCUNet schemes's budget are defined with absolute number instead of ratio
+        if "fixed_budget" in config_scheme or "mcunet" in config_scheme or "proxyless" in config_scheme: # As defined in NEq_configs.yaml, all MCUNet schemes's budget are defined with absolute number instead of ratio
             config.NEq_config.glob_num_params = config.NEq_config.budget
         else:
             config.NEq_config.glob_num_params = compute_update_budget(
@@ -198,7 +198,7 @@ class BaseTrainer(object):
                     )
 
             # Log the amount of frozen neurons
-            use_baseline = (config_scheme == "scheme_7")
+            use_baseline = (config_scheme == "scheme_baseline")
             if not use_baseline:
                 frozen_neurons, saved_flops = log_masks(
                     self.model, self.hooks, self.grad_mask, total_neurons, total_conv_flops

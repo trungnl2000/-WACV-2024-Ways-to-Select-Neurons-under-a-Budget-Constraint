@@ -13,7 +13,6 @@ parameters:
   base_batch_size:
     values:
       - 32
-
   # run_config in transfer.yaml
   n_epochs:
     values:
@@ -32,7 +31,7 @@ parameters:
       - c10
   initialization:
     values:
-#      - full #used when baseline (scheme_7) is applied
+#      - full #used when baseline (scheme_baseline) is applied
       # - random
       - SU
   manual_seed:
@@ -44,20 +43,20 @@ parameters:
   net_name:
     # distribution: categorical
     values:
-      - pre_trained_mbv2
+      # - pre_trained_mbv2
       # - pre_trained_resnet18
-      # - mcunet-in1
+      - mcunet-in1
   neuron_selection:
     values:
-#      - full #used when baseline (scheme_7) is applied
+#      - full #used when baseline (scheme_baseline) is applied
       - SU
       # - velocity
       #- random
   scheme:
     values:
-#      - scheme_7
-     - scheme_1
-#      - scheme_3
-#      - scheme_5
-      # - scheme_MCU_1 # Change the number of updatable neuron in NEq_configs.yaml or add inside sweep, Cannot apply for SU update
-program: ./NEq/train_classification.py #./NEq/get_num_elem.py
+#      - scheme_baseline
+      - mcunet-in1_scheme_1
+    #  - mbv2_scheme_1
+#      - mbv2_scheme_1
+#      - mbv2_scheme_1
+program: ./NEq/train_classification.py

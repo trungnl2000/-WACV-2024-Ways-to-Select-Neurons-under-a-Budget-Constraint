@@ -50,7 +50,7 @@ parameters:
       - random
   scheme:
     values:
-      - scheme_1
-      - scheme_3
-      - scheme_5
+      - mbv2_scheme_1
+      - mbv2_scheme_3
+      - mbv2_scheme_5
 program: ./NEq/train_classification.py

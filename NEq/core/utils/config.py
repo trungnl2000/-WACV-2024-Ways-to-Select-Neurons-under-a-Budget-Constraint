@@ -150,7 +150,7 @@ def update_config_from_wandb(wandb_config):
     config.net_config.net_name = wandb_config.net_name # Read from sweep
 
     config.NEq_config.total_num_params = wandb_sweeps_config.networks[wandb_config.net_name].total_num_params
-    if wandb_config.scheme == "scheme_fixed_budget" or "mcunet" in wandb_config.scheme: # If fixed budget scheme is used instead of ratio budget scheme
+    if wandb_config.scheme == "scheme_fixed_budget" or "mcunet" in wandb_config.scheme or "proxyless" in wandb_config.scheme:
         if "budget" in wandb_config: # If this parameter in sweep file, update from sweep.
             config.NEq_config.budget = wandb_config.budget # Read from sweep
         else: # Otherwise, update from NEq_configs.yaml

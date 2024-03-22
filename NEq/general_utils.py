@@ -12,6 +12,7 @@ from core.utils.config import config, load_transfer_config, update_config_from_w
 
 import wandb
 from core.utils import dist as dist_
+from core.utils.sparse_update_tools import get_all_conv_ops
 
 
 def set_seed(seed):
@@ -143,11 +144,20 @@ def find_module_by_name(model, name):
 # Set module gradients to 0 given neurons to freeze
 @torch.no_grad()
 def zero_gradients(model, name, mask):
-    module = find_module_by_name(model, name)
+    module = find_module_by_name(model, name) # only find convolution layer because name is the name of convolution layer, which is taken from grad_mask (also is created for convolution layers)
     module.weight.grad[mask] = 0.0
-    if getattr(module, "bias", None) is not None:
-        module.bias.grad[mask] = 0.0
+    # if getattr(module, "bias", None) is not None:
+    #     module.bias.grad[mask] = 0.0
     # TODO : implement bias freezing depending on depth for SU update : here it's not important as mbv2 has no bias
+    all_conv_layers = get_all_conv_ops(model) # Get all convolution layers in the model
+    for index in range(len(all_conv_layers) - config.backward_config["n_bias_update"]): # Travel through all layers having bias updated
+        if getattr(all_conv_layers[index], "bias", None) is not None:
+            all_conv_layers[index].bias.grad[:] = 0.0 # Freeze all biases in this layer (or can use 3 lines of code below instead)
+            # for name, param in all_conv_layers[index].named_parameters():
+            #     if name == "bias":
+            #         param.grad.zero_()
+
+        
 
 
 @torch.no_grad()
@@ -206,10 +216,12 @@ def log_masks(model, hooks, grad_mask, total_neurons, total_conv_flops):
 # Call this function to access to a network's number of convolutional parameters
 if __name__ == "__main__":
     # load_transfer_config("transfer.yaml")#load_config_from_file("configs/transfer.yaml")
-    net_name = "pre_trained_mbv2"
-    scheme = "scheme_1"
-    if "mcunet" in net_name:
+    net_name = "proxyless-w0.3" # Fill in the name of the model needed to be measured
+    schemes = ["proxyless-w0.3_scheme_1", "proxyless-w0.3_scheme_2", "proxyless-w0.3_scheme_3", "proxyless-w0.3_scheme_4", "proxyless-w0.3_scheme_5"]
+    if "mcunet" in net_name or net_name == "proxyless-w0.3":
         model, _, _, _ = get_model(net_name)
     else:
         model, _ = get_model(net_name)
-    count_updateable_param(model, scheme)
+    for scheme in schemes:
+        count_updateable_param(model, scheme)
+    # count_net_num_conv_params(model)

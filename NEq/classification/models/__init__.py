@@ -17,10 +17,8 @@ from .mcunet.model_zoo import build_model
 
 
 def get_model(net_name):
-    # net_name = config.net_config.net_name
-    # print(f"Initialize model {net_name}")
-    # mcunet
-    if "mcunet" in net_name:
+    # mcunet and proxylessnas
+    if "mcunet" in net_name or net_name == "proxyless-w0.3":
         model, image_size, description = build_model(net_id=net_name, pretrained=True)
 
         total_neurons = 0

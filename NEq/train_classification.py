@@ -81,7 +81,7 @@ def main():
 
     # Loading model
     print(f"Initialize model {config.net_config.net_name}")
-    if "mcunet" in config.net_config.net_name:
+    if "mcunet" in config.net_config.net_name or config.net_config.net_name == "proxyless-w0.3":
         model, config.data_provider.image_size, description, total_neurons = get_model(config.net_config.net_name)
 
         print("Model: ", config.net_config.net_name)
@@ -90,6 +90,9 @@ def main():
         print("Total neuron: ", total_neurons)
     else:
         model, total_neurons = get_model(config.net_config.net_name)
+
+        print("Model: ", config.net_config.net_name)
+        print("Total neuron: ", total_neurons)
 
 
     dataset = build_dataset()
@@ -115,7 +118,7 @@ def main():
 
     if "mbv2" in config.net_config.net_name:
         classifier = model.classifier[1]
-    elif "mcu" in config.net_config.net_name:
+    elif "mcunet" in config.net_config.net_name or config.net_config.net_name == "proxyless-w0.3":
         classifier = model.classifier # Based on information from NEq/classification/models/__init__/get_model/cfg
     else:
         classifier = model.fc
@@ -162,13 +165,12 @@ def main():
     attach_hooks(trainer.model, trainer.hooks)
 
     # First run on validation to get the PSP for epoch -1
-    # use_baseline = (wandb.config.scheme == "scheme_7")
-    if wandb.config.scheme != "scheme_7":
-        activate_hooks(trainer.hooks, wandb.config.scheme != "scheme_7")  # When baseline is used, I dont need to use velocity and neuron selection method => Deactivate the hook
+    if wandb.config.scheme != "scheme_baseline":
+        activate_hooks(trainer.hooks, wandb.config.scheme != "scheme_baseline")  # When baseline is used, I dont need to use velocity and neuron selection method => Deactivate the hook
         _ = trainer.validate("val_velocity")
 
     total_conv_flops = 0
-    if (wandb.config.scheme != "scheme_7"):#if (not use_baseline):
+    if (wandb.config.scheme != "scheme_baseline"):#if (not use_baseline):
         # Save the activations into the dict + compute flops per conv layer
         for k in trainer.hooks:
             previous_activations[k] = trainer.hooks[k].get_samples_activation()

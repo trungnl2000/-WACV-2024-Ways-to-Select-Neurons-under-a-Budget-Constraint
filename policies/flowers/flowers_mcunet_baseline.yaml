@@ -38,7 +38,7 @@ parameters:
       - flowers
   initialization:
     values:
-      - full # used when baseline (scheme_7) is applied
+      - full # used when baseline (scheme_baseline) is applied
   manual_seed:
     values:
       - 0
@@ -53,8 +53,8 @@ parameters:
       # - mcunet-in4 # MCUNet model that fits 512KB SRAM and 2MB Flash (ImageNet)
   neuron_selection:
     values:
-      - full # used when baseline (scheme_7) is applied
+      - full # used when baseline (scheme_baseline) is applied
   scheme:
     values:
-      - scheme_7
+      - scheme_baseline
 program: ./NEq/train_classification.py
