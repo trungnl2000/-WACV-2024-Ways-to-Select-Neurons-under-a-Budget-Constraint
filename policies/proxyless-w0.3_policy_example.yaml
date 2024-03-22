@@ -7,9 +7,6 @@ metric:
   name: valid.val/best
 parameters:
   # data_provider in transfer.yaml
-  image_size:
-    values:
-      - 224
   base_batch_size:
     values:
       - 32
